@@ -1,13 +1,26 @@
-import { configureStore } from "@reduxjs/toolkit";
-import rootReducer from "./rootReducer";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { configureStore } from '@reduxjs/toolkit';
+import { api } from '@/lib/api';
+import authReducer from '@/features/auth/slice/authSlice';
+import usersReducer from '@/features/users/slice/usersSlice';
+import counterReducer from '@/features/counter/counterSlice';
 
 export const store = configureStore({
-  reducer: rootReducer,
+  reducer: {
+    // API reducer
+    [api.reducerPath]: api.reducer,
+    
+    // Feature reducers
+    auth: authReducer,
+    users: usersReducer,
+    counter: counterReducer,
+  },
+  
+  // Add RTK Query middleware
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(api.middleware),
+    
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
-export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
-
-export const useAppDispatch: () => AppDispatch = useDispatch;
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export type AppDispatch = typeof store.dispatch;
